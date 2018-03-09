@@ -20,9 +20,9 @@ class MongoQuery(object):
         )
 
         self.database = self.connection.get_database(settings['dbname'])
-        self.collection = self.database.get_collection(
-            settings['colname']
-        )
+        # self.collection = self.database.get_collection(
+        #     settings['colname']
+        # )
         self.threadpool = ThreadPool()
         # logging.basicConfig(level=logging.INFO,
         #                     format='%(asctime)s %(levelname)-8s [%(name)s:%(lineno)s] %(message)s',

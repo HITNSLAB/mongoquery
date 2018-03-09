@@ -7,7 +7,7 @@ MONGO_SETTINGS = {
     "user": 'manager-rw',
     'password': 'HITdbManager-rw!',
     'dbname': 'ti_grey_site_post_event',
-    'colname': 'onefloor_raw',
+    # 'colname': 'onefloor_raw',
     'options': {
         'replicaset': 'nistmain',
         'readPreference': 'secondary',
