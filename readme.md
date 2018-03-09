@@ -11,7 +11,7 @@
 
 - #### operation 方法名
 
-  可选择的取值： `createView`、`dropView`、`dropCollection`、`selectView`、`select`
+  可选择的取值： `createView`、`dropView`、`dropCollection`、`textSearch`、`selectView`、`select`
 
 
 ### 2. args 方法参数
@@ -81,9 +81,9 @@
 
     **描述**
 
-    field和value的取值应符合[db.collection.find() 官方文档](https://docs.mongodb.com/manual/reference/method/db.collection.find/) 中对query参数的field和value要求。
+    `field`和`value`的取值应符合[db.collection.find() 官方文档](https://docs.mongodb.com/manual/reference/method/db.collection.find/) 中对query参数的field和value要求。
 
-    所有符合mongo语法的value值都可使用
+    所有符合mongo语法的`value`值都可使用
 
     **示例值**
 
@@ -107,9 +107,9 @@
 
     **描述**
 
-    分页参数，类型为字典dict，包含两个int类型字段`page_index`和`page_size`，若page_spec参数被指定，则必须指定这两个字段的值
+    分页参数，类型为字典dict，包含两个int类型字段`page_index`和`page_size`，若`page_spec`参数被指定，则必须指定这两个字段的值
 
-    此后每次返回的结果将skip前page_index*page_size数目的文档，每次返回的limit等于page_size
+    此后每次返回的结果将skip前page_index*page_size数目的文档，每次返回的`limit`等于`page_size`
 
     **示例值**
 
@@ -126,7 +126,7 @@
 
     **描述**
 
-    可以传入任意个数本文未说明的在[collection.find()函数参数pymongo官方文档](https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.find)中列出的其它参数 ，类型为string、int、dict等，应符合官方文档要求
+    可以传入任意个数本文未说明的在[collection.find()函数参数pymongo官方文档](https://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.find)中列出的其它参数 ，类型为`string`、`int`、`dict`等，应符合官方文档要求
 
     **示例值**
 
