@@ -1,7 +1,0 @@
-{
-    "operation":"select",
-    "args":{
-        "viewName":"myView",
-        "keyword":"k",
-    }
-}
