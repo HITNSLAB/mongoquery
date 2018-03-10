@@ -3,6 +3,7 @@ import json
 from multiprocessing.pool import ThreadPool
 from urllib.parse import quote_plus
 
+from bson import json_util
 from pymongo import MongoClient
 
 
@@ -67,7 +68,8 @@ class MongoQuery(object):
             kwargs['collection'] = kwargs.pop('view')
         return self.select(**kwargs)
 
-    def select(self, collection, field, value, is_view=False, is_text=False, limit=None, page_spec=None, byyield=False,
+    def select(self, collection, field, value, is_view=False, is_text=False, limit=111110, page_spec=None,
+               byyield=False,
                **other_options):
         col = self.database[collection]
 
@@ -85,17 +87,15 @@ class MongoQuery(object):
         found = col.find(
             filter=matcher,
             limit=page_spec['page_size'] if page_spec is not None else limit,
-            skip=int(page_spec['page_index']) * int(page_spec['page_size']) if page_spec is not None else None,
+            skip=int(page_spec['page_index']) * int(page_spec['page_size']) if page_spec is not None else 0,
             **other_options
         )
-
-        if byyield:
-            for doc in found:
-                yield doc
-        else:
-            return [doc for doc in found]
+        return [doc for doc in found]
 
     def query(self, param, to_json=False, callback=None):
+        if isinstance(param, str):
+            param = json.loads(param)
+
         operation = getattr(self, param['operation'], None)
         if operation is not None:
             if callback is not None:
@@ -104,7 +104,28 @@ class MongoQuery(object):
             else:
                 ret = operation(**param['args'])
                 if to_json:
-                    ret = json.dumps(ret)
+                    ret = json_util.dumps(ret)
                 return ret
         else:
             raise KeyError("Operation not found")
+
+    # @staticmethod
+    # def _fix_encode(obj):
+    #     for it in MongoQuery._recursive_iter(obj):
+    #         if isinstance(it,str):
+    #             try:
+    #                 pprint("ggggg")
+    #                 pprint(it)
+    #             except Exception as e:
+    #                 print(e.with_traceback(e))
+    #
+    # @staticmethod
+    # def _recursive_iter(obj):
+    #     if isinstance(obj, dict):
+    #         for item in obj.values():
+    #             yield from MongoQuery._recursive_iter(item)
+    #     elif any(isinstance(obj, t) for t in (list, tuple)):
+    #         for item in obj:
+    #             yield from MongoQuery._recursive_iter(item)
+    #     else:
+    #         yield obj

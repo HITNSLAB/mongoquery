@@ -141,6 +141,30 @@
     }
     ```
 
+
+  #### [注意事项]
+
+  1. 在非view模式下查询content字段会自动转换为$text搜索，此时value必须为一个字符串，不能为字典
+
+  2. 如果使用value为字符串的方式查询字符串字段，按照Mongo的语义是完全匹配。
+
+     所以如果你需要在title、content查找包含某个字符串的文档，请使用如下方式进行正则匹配
+
+     ```
+     {
+         "field":"title",
+         "value":{"
+             "$regex":"百川PT"
+         }
+     }
+     ```
+
+     \$regex匹配将无法使用索引而是直接遍历，因此建议只在view表里使用\$regex，因为view表数据量少。
+
+     如果在原始表里搜的话使用textSearch，或者直接使用`"value":"sss"`进行完全匹配(完全匹配将会使用索引)
+
+  3. 不可以在view表中使用textSearch
+
 ### 二、完整API请求示例
 
 ```json
@@ -149,7 +173,9 @@
     "args":{
         "view":"specialized_ddos_view",
         "field":"title",
-        "value":"百川PT",
+        "value":{
+            "$regex":"百川PT"
+        },
         "page_spec":{
             "page_index":4,
             "page_size":100

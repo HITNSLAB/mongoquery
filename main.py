@@ -1,3 +1,6 @@
+import json
+from pprint import pprint
+
 from mongo_settings import MONGO_SETTINGS
 from mongoquery import MongoQuery
 
@@ -7,15 +10,15 @@ if __name__ == '__main__':
         "operation": "selectView",
         "args": {
             "view": "specialized_ddos_view",
-            "field": "title",
-            "value": "百川PT",
-            "page_spec": {
-                "page_index": 4,
-                "page_size": 100
+            "field": "content",
+            "value": {
+                "$regex": "^黑客"
             },
-            "sort": {
-                "postdate": -1
+            "page_spec": {
+                "page_index": 0,
+                "page_size": 100
             }
         }
     }
-    query.query(dict_data)
+    found = query.query(dict_data, to_json=True)
+    pprint(json.loads(found))
