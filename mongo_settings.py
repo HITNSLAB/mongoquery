@@ -9,7 +9,7 @@ MONGO_SETTINGS = {
     # 'colname': 'onefloor_raw',
     'options': {
         'replicaset': 'nistmain',
-        'readPreference': 'secondary',
+        'readPreference': 'secondaryPreferred',
         'w': "majority"
     }
 }

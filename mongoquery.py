@@ -1,5 +1,4 @@
 import json
-# import logging
 from multiprocessing.pool import ThreadPool
 from urllib.parse import quote_plus
 
@@ -8,6 +7,8 @@ from pymongo import MongoClient
 
 
 class MongoQuery(object):
+    _threadpool = None
+
     def __init__(self, settings):
         _uris = [
             "mongodb://%s:%s@%s/" % (
@@ -19,19 +20,16 @@ class MongoQuery(object):
             host=_uris,
             **settings['options']
         )
-
         self.database = self.connection.get_database(settings['dbname'])
-        # self.collection = self.database.get_collection(
-        #     settings['colname']
-        # )
-        self.threadpool = ThreadPool()
-        # logging.basicConfig(level=logging.INFO,
-        #                     format='%(asctime)s %(levelname)-8s [%(name)s:%(lineno)s] %(message)s',
-        #                     datefmt='%Y-%m-%d %H:%M:%S')
-        # self.logger = logging.getLogger(__name__)
+        if MongoQuery._threadpool is None:
+            MongoQuery._threadpool = ThreadPool()
+
+    @property
+    def threadpool(self):
+        return MongoQuery._threadpool
 
     def createView(self, view, collection, value):
-        self.database.command(
+        return self.database.command(
             'create',
             view,
             viewOn=collection,
@@ -47,10 +45,10 @@ class MongoQuery(object):
         )
 
     def dropView(self, view):
-        self.dropCollection(view)
+        return self.dropCollection(view)
 
     def dropCollection(self, collection):
-        self.database.drop_collection(collection)
+        return self.database.drop_collection(collection)
 
     def textSearch(self, collection, value, **kwargs):
         return self.select(
@@ -68,46 +66,62 @@ class MongoQuery(object):
             kwargs['collection'] = kwargs.pop('view')
         return self.select(**kwargs)
 
-    def select(self, collection, field, value, is_view=False, is_text=False, limit=111110, page_spec=None,
-               byyield=False,
+    def select(self, collection, field, value, is_view=False, is_text=False, limit=None, page_spec=None,
                **other_options):
         col = self.database[collection]
-
-        matcher = {
+        param = {}
+        param['filter'] = {
             field: value
         }
-
         if not is_view and (is_text or field == 'content'):
-            matcher = {
+            param['filter'] = {
                 '$text': {
                     '$search': value
                 }
             }
-
-        found = col.find(
-            filter=matcher,
-            limit=page_spec['page_size'] if page_spec is not None else limit,
-            skip=int(page_spec['page_index']) * int(page_spec['page_size']) if page_spec is not None else 0,
-            **other_options
-        )
+        if limit is not None:
+            param['limit'] = limit
+        if page_spec is not None:
+            param['skip'] = int(page_spec['page_index']) * int(page_spec['page_size'])
+        found = col.find(**param, **other_options)
         return [doc for doc in found]
 
-    def query(self, param, to_json=False, callback=None):
-        if isinstance(param, str):
-            param = json.loads(param)
-
-        operation = getattr(self, param['operation'], None)
-        if operation is not None:
-            if callback is not None:
-                self.threadpool.apply_async(operation, kwds=param['args'], callback=callback)
-
-            else:
-                ret = operation(**param['args'])
-                if to_json:
-                    ret = json_util.dumps(ret)
-                return ret
+    def query(self, *args, callback=None, **kwargs):
+        if callable(callback):
+            return self.threadpool.apply_async(self._query_sync, args=args, kwds=kwargs, callback=callback)
         else:
-            raise KeyError("Operation not found")
+            return self._query_sync(*args, **kwargs)
+
+    def _query_sync(self, param=None, to_json=True):
+        result = None
+        try:
+            if param is None:
+                raise KeyError("Request cannot be None")
+            if isinstance(param, str):
+                param = json.loads(param)
+            operation = getattr(self, param['operation'], None)
+            if operation is None:
+                raise KeyError("Operation not found")
+            result = operation(**param['args'])
+            result = MongoQuery._compose_msg(True, result)
+        except Exception as e:
+            result = MongoQuery._handle_error(e)
+        finally:
+            return json_util.dumps(result) if to_json else result
+
+    @staticmethod
+    def _handle_error(ex):
+        return MongoQuery._compose_msg(False, {
+            'exception': type(ex).__name__,
+            'msg': str(ex)
+        })
+
+    @staticmethod
+    def _compose_msg(status, data):
+        return {
+            'success': status,
+            'data': data
+        }
 
     # @staticmethod
     # def _fix_encode(obj):

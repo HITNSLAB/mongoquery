@@ -1,0 +1,8 @@
+{
+  "operation": "createView",
+  "args": {
+    "view": "specialized_tools_view",
+    "collection": "onefloor_raw",
+    "value": "工具"
+  }
+}

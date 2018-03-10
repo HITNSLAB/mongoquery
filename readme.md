@@ -66,14 +66,13 @@
 
 - #### select通用参数
 
-  | 参数      | 类型         | 是否必填 | 描述                                  | 示例值 | 默认值 |
-  | --------- | ------------ | -------- | ------------------------------------- | ------ | ------ |
-  | field     | String       | 是       | 查询字段名，见详细说明                | title  | -      |
-  | value     | String、dict | 是       | 见详细说明                            | ddos   | -      |
-  | limit     | int          | 否       | 返回的文档数上限值                    | 100    | None   |
-  | page_spec | dict         | 否       | 分页参数，见详细说明                  | -      | None   |
-  | byyield   | boolean      | 否       | 采用yield生成器的方式一次返回一条文档 | true   | false  |
-  | 。。。    | 。。。       | 否       | 见任意参数说明                        | 。。。 | 。。。 |
+  | 参数      | 类型         | 是否必填 | 描述                   | 示例值 | 默认值 |
+  | --------- | ------------ | -------- | ---------------------- | ------ | ------ |
+  | field     | String       | 是       | 查询字段名，见详细说明 | title  | -      |
+  | value     | String、dict | 是       | 见详细说明             | ddos   | -      |
+  | limit     | int          | 否       | 返回的文档数上限值     | 100    | None   |
+  | page_spec | dict         | 否       | 分页参数，见详细说明   | -      | None   |
+  | 。。。    | 。。。       | 否       | 见任意参数说明         | 。。。 | 。。。 |
 
   #### [详细说明]
 
@@ -150,7 +149,7 @@
 
      所以如果你需要在title、content查找包含某个字符串的文档，请使用如下方式进行正则匹配
 
-     ```
+     ```json
      {
          "field":"title",
          "value":{"
@@ -184,6 +183,72 @@
             "postdate":-1
         }
     }
+}
+```
+
+### 三、响应格式
+
+| 参数    | 类型    | 是否必填 | 描述         | 示例值 |
+| ------- | ------- | -------- | ------------ | ------ |
+| success | boolean | 是       | 操作是否成功 | true   |
+| data    | dict    | 是       | 见详情       | -      |
+
+- #### data格式
+
+  当`success`为`true`时,`data`的内容为Mongo服务器返回的原始内容
+
+  当`success`为`false`时，将返回一个`dict`，以显示抛出的异常信息
+
+#### 示例相应
+
+```json
+{
+  "success": false,
+  "data": {
+    "msg": "a view 'ti_grey_site_post_event.specialized_tools2_view' already exists",
+    "exception": "OperationFailure"
+  }
+}
+```
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "acctid": null,
+      "id": 66959332,
+      "_id": {
+        "$oid": "5a7c7b41956e14158c1b827d"
+      },
+      "otherinfo1": null,
+      "content": "黑客快速入门",
+      "site": "www.hackyue.com",
+      "posttime": {
+        "$date": 1357811965000
+      },
+      "rescount": 0,
+      "key_words": "",
+      "gmtdate": {
+        "$date": 1471305600000
+      },
+      "otherinfo2": null,
+      "username": "admin",
+      "content_label": "开发技术讨论",
+      "isoriginal": "1",
+      "reply_tone": "未明确态度",
+      "nickname": null,
+      "posthref": "http://www.hackyue.com/forum.php?mod=viewthread&tid=14434&extra=page=116&filter=author&orderby=dateline",
+      "title": "黑客快速入门",
+      "threadid": "e6348672-bf53-11e6-a1b8-000c2921ef88",
+      "siteurl": "www.hackyue.com",
+      "postfloor": "1",
+      "viewcount": -1,
+      "datasource": 1,
+      "sitetype": "12",
+      "board": "全国技术综合交流"
+    }
+  ]
 }
 ```
 

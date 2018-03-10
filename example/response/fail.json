@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "data": {
+    "msg": "a view 'ti_grey_site_post_event.specialized_tools2_view' already exists",
+    "exception": "OperationFailure"
+  }
+}
