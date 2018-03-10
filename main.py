@@ -12,7 +12,7 @@ def example_callback(result):
 
 
 if __name__ == '__main__':
-    query = MongoQuery(MONGO_SETTINGS)
+    query_client = MongoQuery(MONGO_SETTINGS)
     # data = {
     #     "operation": "createView",
     #     "args": {
@@ -27,9 +27,9 @@ if __name__ == '__main__':
       "operation": "selectView",
       "args": {
         "view": "specialized_ddos_view",
-        "field": "title",
+        "field": "content",
         "value": {
-          "$regex": "ddos"
+          "$regex": "工具"
         },
         "limit":10
       }
@@ -39,12 +39,12 @@ if __name__ == '__main__':
     t1 = time.time()
     for i in range(100):
         # 同步版本
-        # ret=json.loads(query.query(data))
+        # ret = json.loads(query_client.query(data))
         # pprint(ret['success'])
         # 异步回调版本
-        query.query(data, callback=example_callback)
+        query_client.query(data, callback=example_callback)
 
-    query.threadpool.close()
-    query.threadpool.join()
+    query_client.threadpool.close()
+    query_client.threadpool.join()
 
     pprint(time.time() - t1)
