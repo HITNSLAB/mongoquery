@@ -152,7 +152,7 @@
      ```json
      {
          "field":"title",
-         "value":{"
+         "value":{
              "$regex":"百川PT"
          }
      }
