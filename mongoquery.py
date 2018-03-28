@@ -73,6 +73,9 @@ class MongoQuery(object):
         param['filter'] = {
             field: value
         }
+        if 'sort' in other_options:
+            other_options['sort'] = list(other_options['sort'].items())
+
         if not is_view and (is_text or field == 'content'):
             param['filter'] = {
                 '$text': {
@@ -123,23 +126,23 @@ class MongoQuery(object):
             'data': data
         }
 
-    # @staticmethod
-    # def _fix_encode(obj):
-    #     for it in MongoQuery._recursive_iter(obj):
-    #         if isinstance(it,str):
-    #             try:
-    #                 pprint("ggggg")
-    #                 pprint(it)
-    #             except Exception as e:
-    #                 print(e.with_traceback(e))
-    #
-    # @staticmethod
-    # def _recursive_iter(obj):
-    #     if isinstance(obj, dict):
-    #         for item in obj.values():
-    #             yield from MongoQuery._recursive_iter(item)
-    #     elif any(isinstance(obj, t) for t in (list, tuple)):
-    #         for item in obj:
-    #             yield from MongoQuery._recursive_iter(item)
-    #     else:
-    #         yield obj
+        # @staticmethod
+        # def _fix_encode(obj):
+        #     for it in MongoQuery._recursive_iter(obj):
+        #         if isinstance(it,str):
+        #             try:
+        #                 pprint("ggggg")
+        #                 pprint(it)
+        #             except Exception as e:
+        #                 print(e.with_traceback(e))
+        #
+        # @staticmethod
+        # def _recursive_iter(obj):
+        #     if isinstance(obj, dict):
+        #         for item in obj.values():
+        #             yield from MongoQuery._recursive_iter(item)
+        #     elif any(isinstance(obj, t) for t in (list, tuple)):
+        #         for item in obj:
+        #             yield from MongoQuery._recursive_iter(item)
+        #     else:
+        #         yield obj

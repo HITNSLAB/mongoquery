@@ -6,6 +6,9 @@
     "value": {
       "$regex": "^黑客"
     },
+    "sort": {
+      "obtaintime": -1
+    },
     "page_spec": {
       "page_index": 0,
       "page_size": 100

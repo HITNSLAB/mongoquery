@@ -5,7 +5,7 @@ MONGO_SETTINGS = {
     ],
     "user": 'manager-rw',
     'password': 'HITdbManager-rw!',
-    'dbname': 'thread_info',
+    'dbname': 'threat_info',
     # 'colname': 'onefloor_raw',
     'options': {
         'replicaset': 'nistmain',

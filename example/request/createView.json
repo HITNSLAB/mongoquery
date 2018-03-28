@@ -2,7 +2,7 @@
   "operation": "createView",
   "args": {
     "view": "specialized_tools_view",
-    "collection": "onefloor_raw",
+    "collection": "basicinfo",
     "value": "工具"
   }
 }

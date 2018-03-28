@@ -8,7 +8,8 @@ from mongoquery import MongoQuery
 
 def example_callback(result):
     data = json.loads(result)
-    pprint(data['success'])
+    # pprint(data['success'])
+    pprint(data)
 
 
 if __name__ == '__main__':
@@ -31,18 +32,21 @@ if __name__ == '__main__':
         "value": {
           "$regex": "工具"
         },
+        "sort": {
+          "obtaintime": -1
+        },
         "limit":10
       }
     }
         '''
 
     t1 = time.time()
-    for i in range(100):
-        # 同步版本
-        # ret = json.loads(query_client.query(data))
-        # pprint(ret['success'])
-        # 异步回调版本
-        query_client.query(data, callback=example_callback)
+    # for i in range(1):
+    # 同步版本
+    # ret = json.loads(query_client.query(data))
+    # pprint(ret['success'])
+    # 异步回调版本
+    query_client.query(data, callback=example_callback)
 
     query_client.threadpool.close()
     query_client.threadpool.join()
