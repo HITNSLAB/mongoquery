@@ -1,11 +1,11 @@
 MONGO_SETTINGS = {
     "hosts": [
-        '172.26.253.140',
-        '172.26.253.141',
+        '10.245.144.92',
+        '10.245.144.93',
     ],
     "user": 'manager-rw',
     'password': 'HITdbManager-rw!',
-    'dbname': 'ti_grey_site_post_event',
+    'dbname': 'thread_info',
     # 'colname': 'onefloor_raw',
     'options': {
         'replicaset': 'nistmain',
