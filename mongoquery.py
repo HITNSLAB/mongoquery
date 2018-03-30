@@ -72,7 +72,7 @@ class MongoQuery(object):
         param = {}
         param['filter'] = {
             field: value
-        } if field is not field else {}
+        } if field else {}
         if 'sort' in other_options:
             other_options['sort'] = list(other_options['sort'].items())
 
