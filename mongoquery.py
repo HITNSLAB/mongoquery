@@ -72,7 +72,7 @@ class MongoQuery(object):
         param = {}
         param['filter'] = {
             field: value
-        }
+        } if field is not field else {}
         if 'sort' in other_options:
             other_options['sort'] = list(other_options['sort'].items())
 
@@ -86,6 +86,7 @@ class MongoQuery(object):
             param['limit'] = limit
         if page_spec is not None:
             param['skip'] = int(page_spec['page_index']) * int(page_spec['page_size'])
+            param['limit'] = int(page_spec['page_size'])
         found = col.find(**param, **other_options)
         return [doc for doc in found]
 
@@ -106,7 +107,7 @@ class MongoQuery(object):
             if operation is None:
                 raise KeyError("Operation not found")
             result = operation(**param['args'])
-            result = MongoQuery._compose_msg(True, result)
+            result = MongoQuery._compose_msg(True, result, len(result))
         except Exception as e:
             result = MongoQuery._handle_error(e)
         finally:
@@ -120,10 +121,11 @@ class MongoQuery(object):
         })
 
     @staticmethod
-    def _compose_msg(status, data):
+    def _compose_msg(status, data, ndocs=0):
         return {
             'success': status,
-            'data': data
+            'data': data,
+            'ndocs': ndocs
         }
 
         # @staticmethod
