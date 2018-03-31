@@ -25,17 +25,19 @@ if __name__ == '__main__':
 
     data = '''
         {
-      "operation": "selectView",
+      "operation": "select",
       "args": {
-        "view": "specialized_ddos_view",
-        "field": "content",
-        "value": {
-          "$regex": "工具"
+        "collection": "specialized_ddos_view",
+        "filter": {
+            "content": {
+                "$regex": "ddos"
+            }
         },
         "sort": {
           "obtaintime": -1
         },
         "limit":10
+        
       }
     }
         '''

@@ -53,42 +53,38 @@ class MongoQuery(object):
     def textSearch(self, collection, value, **kwargs):
         return self.select(
             collection=collection,
-            field='content',
-            value=value,
-            is_view=True,
-            is_text=True,
-            **kwargs
-        )
-
-    def selectView(self, **kwargs):
-        kwargs['is_view'] = True
-        if 'view' in kwargs:
-            kwargs['collection'] = kwargs.pop('view')
-        return self.select(**kwargs)
-
-    def select(self, collection, field, value, is_view=False, is_text=False, limit=None, page_spec=None,
-               **other_options):
-        col = self.database[collection]
-        param = {}
-        param['filter'] = {
-            field: value
-        } if field else {}
-        if 'sort' in other_options:
-            other_options['sort'] = list(other_options['sort'].items())
-
-        if not is_view and (is_text or field == 'content'):
-            param['filter'] = {
+            filter={
                 '$text': {
                     '$search': value
                 }
-            }
+            },
+            **kwargs
+        )
+
+    def count(self, collection, filter):
+        col = self.database[collection]
+        return col.count(filter)
+
+    # def selectView(self, **kwargs):
+    #     kwargs['is_view'] = True
+    #     if 'view' in kwargs:
+    #         kwargs['collection'] = kwargs.pop('view')
+    #     return self.select(**kwargs)
+
+    def select(self, collection, filter, limit=None, page_spec=None, **other_options):
+        col = self.database[collection]
+        param = {}
+        param['filter'] = filter
+        if 'sort' in other_options:
+            other_options['sort'] = list(other_options['sort'].items())
         if limit is not None:
             param['limit'] = limit
         if page_spec is not None:
             param['skip'] = int(page_spec['page_index']) * int(page_spec['page_size'])
             param['limit'] = int(page_spec['page_size'])
         found = col.find(**param, **other_options)
-        return [doc for doc in found]
+        ndocs = self.count(collection, filter)
+        return [doc for doc in found], ndocs
 
     def query(self, *args, callback=None, **kwargs):
         if callable(callback):
@@ -107,7 +103,11 @@ class MongoQuery(object):
             if operation is None:
                 raise KeyError("Operation not found")
             result = operation(**param['args'])
-            result = MongoQuery._compose_msg(True, result, len(result))
+            if isinstance(result, tuple):
+                result = MongoQuery._compose_msg(True, result[0], result[1])
+            else:
+                result = MongoQuery._compose_msg(True, result)
+
         except Exception as e:
             result = MongoQuery._handle_error(e)
         finally:
