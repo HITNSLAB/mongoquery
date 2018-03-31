@@ -48,58 +48,60 @@
 
   ​
 
-- #### selectView
-
-  | 参数   | 类型     | 是否必填 | 描述             | 示例值                   | 默认值  |
-  | ---- | ------ | ---- | -------------- | --------------------- | ---- |
-  | view | String | 是    | 将进行搜索的视图名称     | specialized_ddos_view | -    |
-  | 。。。  | 。。。    | 。。。  | 详见select通用参数列表 | 。。。                   | 。。。  |
-
 - #### select
 
-  | 参数         | 类型      | 是否必填 | 描述                    | 示例值          | 默认值   |
-  | ---------- | ------- | ---- | --------------------- | ------------ | ----- |
-  | collection | String  | 是    | 将进行搜索的集合或视图名称         | onefloor_raw | -     |
-  | is_view    | boolean | 否    | collection字段所对应的是否是视图 | false        | false |
-  | 。。。        | 。。。     | 。。。  | 详见select通用参数列表        | 。。。          | 。。。   |
+  | 参数         | 类型     | 是否必填 | 描述                      | 示例值                           | 默认值  |
+  | ---------- | ------ | ---- | ----------------------- | ----------------------------- | ---- |
+  | collection | String | 是    | 将进行搜索的集合或视图名称           | onefloor_raw                  | -    |
+  | filter     | dict   | 是    | 查询字段名，同MongoDB官方文档的参数要求 | {"content":{"$regex":"ddos"}} | -    |
+  | 。。。        | 。。。    | 。。。  | 详见select通用参数列表          | 。。。                           | 。。。  |
 
 - #### select通用参数
 
-  | 参数        | 类型          | 是否必填 | 描述          | 示例值   | 默认值  |
-  | --------- | ----------- | ---- | ----------- | ----- | ---- |
-  | field     | String      | 是    | 查询字段名，见详细说明 | title | -    |
-  | value     | String、dict | 是    | 见详细说明       | ddos  | -    |
-  | limit     | int         | 否    | 返回的文档数上限值   | 100   | None |
-  | page_spec | dict        | 否    | 分页参数，见详细说明  | -     | None |
-  | 。。。       | 。。。         | 否    | 见任意参数说明     | 。。。   | 。。。  |
+  | 参数        | 类型   | 是否必填 | 描述         | 示例值  | 默认值  |
+  | --------- | ---- | ---- | ---------- | ---- | ---- |
+  | limit     | int  | 否    | 返回的文档数上限值  | 100  | None |
+  | page_spec | dict | 否    | 分页参数，见详细说明 | -    | None |
+  | 。。。       | 。。。  | 否    | 见任意参数说明    | 。。。  | 。。。  |
 
   #### [详细说明]
 
-  - #### field和value
+  - #### filter
 
     **描述**
 
-    `field`和`value`的取值应符合[db.collection.find() 官方文档](https://docs.mongodb.com/manual/reference/method/db.collection.find/) 中对query参数的field和value要求。
+    `filter`取值应符合[db.collection.find() 官方文档](https://docs.mongodb.com/manual/reference/method/db.collection.find/) 中对query参数的要求。
 
-    所有符合mongo语法的`value`值都可使用
-
-    如果field为空字符串，则表示不设置条件的查找，此时value值会被忽略
+    如果field为空字典，则表示不设置条件的查找
 
     **示例值**
 
     ```json
     {
-        "field":"thread-id",
-        "value":{
-            "$gt":21
-        }
+      "filter":{
+        "$or":[
+          {
+            "title":{
+              "$regex":"abc"
+            }
+          },
+          {
+            "obtaintime":{
+              "$gt":"0"
+            }
+          }
+        ]
+      }
     }
     ```
 
     ```json
     {
-        "field":"username",
-        "value":"C0d3r1iu"
+      "filter":{
+        "content":{
+          "$regex":"ddos"
+        }
+      }
     }
     ```
 
@@ -144,18 +146,19 @@
 
   #### [注意事项]
 
-  1. 在非view模式下查询content字段会自动转换为$text搜索，此时value必须为一个字符串，不能为字典
+  1. 如果在非view表下查询content字段请使用textSearch接口，否则会很慢
 
-  2. 如果使用value为字符串的方式查询字符串字段，按照Mongo的语义是完全匹配。
+  2. view模式下不能使用textSearch
 
      所以如果你需要在title、content查找包含某个字符串的文档，请使用如下方式进行正则匹配
 
      ```json
      {
-         "field":"title",
-         "value":{
-             "$regex":"百川PT"
+       "filter":{
+         "content":{
+           "$regex":"ddos"
          }
+       }
      }
      ```
 
@@ -172,10 +175,11 @@
     "operation":"selectView",
     "args":{
         "view":"specialized_ddos_view",
-        "field":"title",
-        "value":{
-            "$regex":"百川PT"
-        },
+        "filter":{
+    		"content":{
+      			"$regex":"ddos"
+    		}
+  		},
         "page_spec":{
             "page_index":4,
             "page_size":100
@@ -189,11 +193,11 @@
 
 ### 三、响应格式
 
-| 参数      | 类型      | 是否必填 | 描述           | 示例值  |
-| ------- | ------- | ---- | ------------ | ---- |
-| success | boolean | 是    | 操作是否成功       | true |
-| data    | dict    | 是    | 见详情          | -    |
-| ndocs   | int     | 是    | 成功则为文档数，否则为0 | 100  |
+| 参数      | 类型      | 是否必填 | 描述                               | 示例值  |
+| ------- | ------- | ---- | -------------------------------- | ---- |
+| success | boolean | 是    | 操作是否成功                           | true |
+| data    | dict    | 是    | 见详情                              | -    |
+| ndocs   | int     | 是    | 成功则为当前查询条件下库中存在的匹配条数(而不是当前返回的条数) | 100  |
 
 - #### data格式
 
@@ -252,7 +256,7 @@
       "board": "全国技术综合交流"
     }
   ],
-  "ndocs": 1
+  "ndocs": 1234
 }
 ```
 
